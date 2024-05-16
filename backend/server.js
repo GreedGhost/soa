@@ -3,7 +3,7 @@ const express = require('express');
 const { Resume } = require('./Model');
 const cors = require('cors');
 const bodyParser = require("body-parser");
-
+const axios = require('axios');
 
 const uri = "mongodb+srv://abousmohamed2002:1234@projetcv.q0iupl2.mongodb.net/?retryWrites=true&w=majority&appName=projetCv";
 
@@ -20,7 +20,9 @@ app.use(cors({
 
 app.get("/resume/fetch", async (req, res) => {
     try {
-        const resume = await Resume.findOne({});
+        const resume_ = await Resume.find({});
+        
+        resume = resume_[resume_.length - 1];
         if (!resume) {
             res.status(404).send("No resume found.");
             return;
@@ -74,10 +76,27 @@ app.get("/resume/fetch", async (req, res) => {
 
 app.post("/resume/add", async (req, res) => {
     const resume = req.body;
-    const newResume = new Resume(resume);
+
+    // Map through projects and send each description to the Flask API for summarization
+    const projectsWithSummarizedDescription = await Promise.all(req.body.projects.map(async (project) => {
+        const summarizedDescription = await axios.post('http://192.168.62.134:5001/generate', { project: project.description });
+        return {
+            name: project.name,
+            description: summarizedDescription.data  // Assuming the summarized description is in the response data
+        };
+    }));
+
+    // Assign the projects with summarized descriptions back to the request body
+    req.body.projects = projectsWithSummarizedDescription;
+
+    // Save the new resume to the database
+    const newResume = new Resume(req.body);
     await newResume.save();
+
+    // Respond with the new resume
     res.status(200).json(newResume);
 });
+
 
 
 
