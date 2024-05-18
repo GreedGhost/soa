@@ -34,4 +34,4 @@ if __name__ == "__main__":
     raise ValueError("Missing GEMINI_API_KEY environment variable")
 
   # Run the Flask development server
-  app.run(host= "0.0.0.0", debug=True, port=5001)
+  app.run(debug=True, port=5001)

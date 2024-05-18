@@ -79,7 +79,7 @@ app.post("/resume/add", async (req, res) => {
 
     // Map through projects and send each description to the Flask API for summarization
     const projectsWithSummarizedDescription = await Promise.all(req.body.projects.map(async (project) => {
-        const summarizedDescription = await axios.post('http://192.168.62.134:5001/generate', { project: project.description });
+        const summarizedDescription = await axios.post('http://localhost:5001/generate', { project: project.description });
         return {
             name: project.name,
             description: summarizedDescription.data  // Assuming the summarized description is in the response data
