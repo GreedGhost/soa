@@ -11,8 +11,8 @@ genai.configure(api_key=YOUR_API_KEY)
 model_name = "gemini-pro"
 model = genai.GenerativeModel(model_name)
 
-@app.route("/generate", methods=["POST"])
-def generate_prompt():
+@app.route("/generate_project", methods=["POST"])
+def generate_project():
   """
   API endpoint to generate response using Gemini based on prompt.
   """
@@ -27,6 +27,25 @@ def generate_prompt():
 
   # Return the generated text
   return response.text
+
+@app.route("/generate_education", methods=["POST"])
+def generate_education():
+  """
+  API endpoint to generate response using Gemini based on prompt.
+  """
+  # Get prompt text from request data
+  project = request.json.get("project")
+
+  if project is None:
+    return "Missing prompt in request body", 400
+
+  # Generate response using the model
+  response = model.generate_content("Summarize this in one line for my resume: "+ project)
+
+  # Return the generated text
+  return response.text
+
+
 
 if __name__ == "__main__":
   # Load API key securely from environment variable (recommended)
